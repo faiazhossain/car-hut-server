@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const carCollection = client.db("carHut").collection("carData");
+    const allCars = client.db("carHut").collection("allCars");
 
     app.get("/brands", async (req, res) => {
       const query = {};
