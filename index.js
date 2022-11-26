@@ -22,6 +22,7 @@ async function run() {
     const carCollection = client.db("carHut").collection("carData");
     const allCars = client.db("carHut").collection("allCars");
     const bookingsCollection = client.db("carHut").collection("bookings");
+
     app.get("/brands", async (req, res) => {
       const query = {};
       const cursor = carCollection.find(query);
@@ -35,6 +36,13 @@ async function run() {
       const cursor = allCars.find(query);
       const items = await cursor.toArray();
       res.send(items);
+    });
+
+    app.get("/bookings", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const bookings = await bookingsCollection.find(query).toArray();
+      res.send(bookings);
     });
 
     app.post("/bookings", async (req, res) => {
