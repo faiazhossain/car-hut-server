@@ -28,6 +28,14 @@ async function run() {
       const brands = await cursor.toArray();
       res.send(brands);
     });
+
+    app.get("/brands/:id", async (req, res) => {
+      let id = req.params.id;
+      let query = { categoryid: id };
+      const cursor = allCars.find(query);
+      const items = await cursor.toArray();
+      res.send(items);
+    });
   } finally {
   }
 }
