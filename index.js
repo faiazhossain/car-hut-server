@@ -41,6 +41,7 @@ async function run() {
     const allCars = client.db("carHut").collection("allCars");
     const bookingsCollection = client.db("carHut").collection("bookings");
     const usersCollection = client.db("carHut").collection("users");
+    const productsCollection = client.db("carHut").collection("products");
 
     app.get("/brands", async (req, res) => {
       const query = {};
@@ -55,6 +56,15 @@ async function run() {
       const cursor = allCars.find(query);
       const items = await cursor.toArray();
       res.send(items);
+    });
+
+    app.get("/brandsSelect", async (req, res) => {
+      const query = {};
+      const result = await carCollection
+        .find(query)
+        .project({ name: 1 })
+        .toArray();
+      res.send(result);
     });
 
     app.get("/bookings", verifyJWT, async (req, res) => {
@@ -128,6 +138,12 @@ async function run() {
         updatedDoc,
         options
       );
+      res.send(result);
+    });
+
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await productsCollection.insertOne(product);
       res.send(result);
     });
   } finally {
