@@ -99,11 +99,35 @@ async function run() {
       res.status(403).send({ accessToken: "" });
     });
 
-    app.get("/users/admin/:email", async (req, res) => {
+    app.get("/users/seller/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
-      res.send({ isAdmin: user?.role === "admin" });
+      res.send({ isSeller: user?.role === "seller" });
+    });
+
+    app.put("/users/seller/:id", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const user = await usersCollection.findOne(query);
+      if (user?.role !== "seller") {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          role: "seller",
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
     });
 
     app.get("/users", async (req, res) => {
@@ -116,6 +140,20 @@ async function run() {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       res.send(result);
+    });
+
+    app.get("/users/:role", async (req, res) => {
+      const user = req.params.role;
+      const query = { role: user };
+      const userRole = await usersCollection.find(query).toArray();
+      res.send(userRole);
+    });
+
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isAdmin: user?.role === "admin" });
     });
 
     app.put("/users/admin/:id", verifyJWT, async (req, res) => {
@@ -141,9 +179,15 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/products", async (req, res) => {
+      const query = {};
+      const products = await allCars.find(query).toArray();
+      res.send(products);
+    });
+
     app.post("/products", async (req, res) => {
       const product = req.body;
-      const result = await productsCollection.insertOne(product);
+      const result = await allCars.insertOne(product);
       res.send(result);
     });
   } finally {
